@@ -60,7 +60,11 @@ class MulticoreTSNE:
             "void tsne_run_double(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int _num_threads, int max_iter, int random_state);")
 
         path = os.path.dirname(os.path.realpath(__file__))
-        self.C = self.ffi.dlopen(path + "/libtsne_multicore.so")
+        
+        if os.name == 'nt':
+            self.C = self.ffi.dlopen(path + "/libtsne_multicore.dll")
+        else:
+            self.C = self.ffi.dlopen(path + "/libtsne_multicore.so")
 
     def fit_transform(self, X):
 

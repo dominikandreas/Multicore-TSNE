@@ -8,7 +8,12 @@
  *  Multicore version by Dmitry Ulyanov, 2016. dmitry.ulyanov.msu@gmail.com
  */
 
-#include <math.h>
+#ifdef __unix__         
+#elif defined(_WIN32) || defined(WIN32) 
+#define OS_Windows
+#endif
+ 
+ #include <math.h>
 #include <float.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -484,8 +489,22 @@ double TSNE::randn() {
     return x;
 }
 
-extern "C"
+
+
+extern "C"  
 {
+    
+#ifdef OS_Windows
+	__declspec(dllexport) void tsne_run_double(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int _num_threads, int max_iter, int random_state)
+#else
+    extern void tsne_run_double(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int _num_threads, int max_iter, int random_state)
+#endif 
+    {
+        printf("Performing t-SNE using %d cores.\n", _num_threads);
+        TSNE tsne;
+        tsne.run(X, N, D, Y, no_dims, perplexity, theta, _num_threads, max_iter, random_state);
+    }
+    
     extern void tsne_run_double(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int _num_threads, int max_iter, int random_state)
     {
         printf("Performing t-SNE using %d cores.\n", _num_threads);
